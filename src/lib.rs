@@ -1,35 +1,31 @@
-﻿#![cfg_attr(not(feature = "std"), no_std)]
+﻿use serde::{Deserialize, Serialize};
 
-#[cfg(not(feature = "std"))]
-extern crate alloc;
+pub const GENESIS_ANCHOR: &str = "01a777";
 
-#[cfg(not(feature = "std"))]
-use alloc::{string::String, vec::Vec, format};
-
-#[cfg(feature = "serde")]
-use serde::{Serialize, Deserialize};
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct AnchorHash(pub [u8; 32]);
-
-impl AnchorHash {
-    #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn short(&self) -> String {
-        self.0[..4].iter().map(|b| format!("{:02x}", b)).collect()
-    }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Node {
+    pub id: String,
+    pub label: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum StateLabel {
-    Stationary,
-    Transitioning,
-    Degraded,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Relation {
+    pub source: String,
+    pub target: String,
+    pub weight: f64, // The "Resonance" score
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RelationalMap {
+    pub nodes: Vec<Node>,
+    pub relations: Vec<Relation>,
+}
+
+// Existing TSH types below...
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AnchorHash(pub String);
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum InvariantId {
     Coupling,
     ScaleSeparation,
@@ -38,42 +34,47 @@ pub enum InvariantId {
     StationaryFloor,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum StateLabel {
+    Stationary,
+    Drift,
+    Entropy,
+    Resonance,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InvariantResult {
     pub id: InvariantId,
-    pub passed: bool,
-    #[cfg(any(feature = "std", feature = "alloc"))]
-    pub reason: Option<String>,
+    pub label: StateLabel,
+    pub message: String,
+    pub passing: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+impl InvariantResult {
+    pub fn passed(&self) -> bool { self.passing }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateSeal {
-    pub anchor: AnchorHash,
+    pub hash: AnchorHash,
+    pub timestamp: u64,
+    pub anchor: String,
     pub label: StateLabel,
     pub sequence: u64,
-    pub hash: [u8; 32],
 }
 
-/// PROVISIONAL: Wire format for cross-domain replay prevention.
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct WireSeal {
-    pub seal: StateSeal,
-    #[cfg(any(feature = "std", feature = "alloc"))]
-    pub signature: Vec<u8>,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GovernanceCommand {
+    pub id: String,
+    pub verb: String,
+    pub target: String,
+    pub anchor: String,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_anchor_short() {
-        let mut bytes = [0u8; 32];
-        bytes[0] = 0xde; bytes[1] = 0xad; bytes[2] = 0xbe; bytes[3] = 0xef;
-        let anchor = AnchorHash(bytes);
-        assert_eq!(anchor.short(), "deadbeef");
-    }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CommandResult {
+    pub id: String,
+    pub success: bool,
+    pub message: String,
+    pub exit_code: i32,
 }
