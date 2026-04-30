@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["repo", "status", "timestamp", "phase", "vector_hash"],
+  "properties": {
+    "repo": { "type": "string" },
+    "status": { "enum": ["pass", "fail", "parked"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "phase": { "type": "integer" },
+    "vector_hash": { "type": "string" },
+    "message": { "type": "string" }
+  }
+}
