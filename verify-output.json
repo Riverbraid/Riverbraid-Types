@@ -1,0 +1,14 @@
+{
+  "repo": "Riverbraid-Types",
+  "status": "VERIFIED",
+  "verification_scope": "ring0-file-surface",
+  "claim_boundary": "declared-conditions-only",
+  "required_files": [
+    "package.json",
+    "AUTHORITY.md",
+    "RING.md"
+  ],
+  "missing_files": [],
+  "failure_codes": [],
+  "digest": "sha256:b335ad00131714ad982bb93958968e9ebe74eb801d94a463abf15048c8c9bd8c"
+}
