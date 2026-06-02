@@ -1,5 +1,7 @@
-﻿name: Riverbraid Verification Suite
+name: Riverbraid Verification Suite
 on: [push]
+permissions:
+  contents: read
 jobs:
   verify-integrity:
     runs-on: ubuntu-latest
